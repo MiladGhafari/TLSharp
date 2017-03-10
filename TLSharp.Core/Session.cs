@@ -189,5 +189,6 @@ namespace TLSharp.Core
             LastMessageId = newMessageId;
             return newMessageId;
         }
+
     }
 }

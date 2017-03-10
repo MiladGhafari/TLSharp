@@ -14,7 +14,7 @@ using TLSharp.Core.Utils;
 
 namespace TLSharp.Core.Network
 {
-    public class MtProtoSender
+    public class MtProtoSender :IDisposable
     {
         //private ulong sessionId = GenerateRandomUlong();
 
@@ -520,6 +520,11 @@ namespace TLSharp.Core.Network
         private MemoryStream makeMemory(int len)
         {
             return new MemoryStream(new byte[len], 0, len, true, true);
+        }
+
+        public void Dispose()
+        {
+            _transport.Dispose();
         }
     }
 

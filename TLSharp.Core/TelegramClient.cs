@@ -385,6 +385,11 @@ namespace TLSharp.Core
             {
                 _transport.Dispose();
                 _transport = null;
+                _sender.Dispose();
+                _sender = null;
+                _session = null;
+                dcOptions = null;
+                _handler = null;
             }
         }
     }
