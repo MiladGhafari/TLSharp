@@ -31,7 +31,7 @@ namespace TLSharp.Core
         private TcpClientConnectionHandler _handler;
 
         public TelegramClient(int apiId, string apiHash,
-            ISessionStore store = null, string sessionUserId = "session", TcpClientConnectionHandler handler = null)
+            ISessionStore store = null, string sessionUserId = "session",bool increaseSequence=false ,TcpClientConnectionHandler handler = null)
         {
             if (apiId == default(int))
                 throw new MissingApiConfigurationException("API_ID");
@@ -47,6 +47,8 @@ namespace TLSharp.Core
             _handler = handler;
 
             _session = Session.TryLoadOrCreateNew(store, sessionUserId);
+            if (increaseSequence)
+                _session.Sequence += 1;
             _transport = new TcpTransport(_session.ServerAddress, _session.Port, _handler);
         }
 
