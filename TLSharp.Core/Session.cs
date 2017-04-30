@@ -37,6 +37,29 @@ namespace TLSharp.Core
                 return Session.FromBytes(buffer, this, sessionUserId);
             }
         }
+        public int? GetSequenceNumber(string sessionFileName)
+        {
+            int? result;
+            if (!File.Exists(sessionFileName))
+            {
+                result = null;
+                return result;
+            }
+            using (FileStream fileStream = new FileStream(sessionFileName, FileMode.Open))
+            {
+                byte[] buffer = new byte[2048];
+                fileStream.Read(buffer, 0, 2048);
+                using (MemoryStream memoryStream = new MemoryStream(buffer))
+                {
+                    using (BinaryReader binaryReader = new BinaryReader(memoryStream))
+                    {
+                        binaryReader.ReadUInt64();
+                        result = new int?(binaryReader.ReadInt32());
+                    }
+                }
+            }
+            return result;
+        }
     }
 
     public class FakeSessionStore : ISessionStore

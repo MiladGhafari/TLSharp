@@ -30,27 +30,28 @@ namespace TLSharp.Core
         private List<TLDcOption> dcOptions;
         private TcpClientConnectionHandler _handler;
 
-        public TelegramClient(int apiId, string apiHash,
-            ISessionStore store = null, string sessionUserId = "session",bool increaseSequence=false ,TcpClientConnectionHandler handler = null)
+        public TelegramClient(int apiId, string apiHash, ISessionStore store = null, string sessionUserId = "session", bool increaseSequence = false, int sequenceNumber = 0, TcpClientConnectionHandler handler = null)
         {
-            if (apiId == default(int))
+            if (apiId == 0)
                 throw new MissingApiConfigurationException("API_ID");
             if (string.IsNullOrEmpty(apiHash))
                 throw new MissingApiConfigurationException("API_HASH");
-
             if (store == null)
                 store = new FileSessionStore();
-
             TLContext.Init();
             _apiHash = apiHash;
             _apiId = apiId;
             _handler = handler;
-
             _session = Session.TryLoadOrCreateNew(store, sessionUserId);
+
             if (increaseSequence)
-                _session.Sequence += 1;
+                _session.Sequence++;
+
+            if (sequenceNumber != 0)
+                _session.Sequence = sequenceNumber;
             _transport = new TcpTransport(_session.ServerAddress, _session.Port, _handler);
         }
+
 
         public async Task<bool> ConnectAsync(bool reconnect = false)
         {
@@ -112,7 +113,7 @@ namespace TLSharp.Core
 
             var authCheckPhoneRequest = new TLRequestCheckPhone() { phone_number = phoneNumber };
             var completed = false;
-            while(!completed)
+            while (!completed)
             {
                 try
                 {
@@ -120,7 +121,7 @@ namespace TLSharp.Core
                     await _sender.Receive(authCheckPhoneRequest);
                     completed = true;
                 }
-                catch(PhoneMigrationException e)
+                catch (PhoneMigrationException e)
                 {
                     await ReconnectToDcAsync(e.DC);
                 }
